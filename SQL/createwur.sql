@@ -1,0 +1,43 @@
+-- creatwur.sql
+--
+-- Archivo de creacion de las tablas necesarias para la tecnica WUR.
+--
+-- Autores:
+--
+-- Samantha Campisi (samanthac07@gmail.com)
+-- Juan A. Escalante (jaescalante02@gmail.com)
+
+  DROP TABLE WUR_SEGMENTO;
+  DROP TABLE WUR_CAPTURA;
+  DROP TABLE WUR_PAGINA;
+
+  CREATE TABLE WUR_PAGINA (
+       P_ID  NUMBER(8) NOT NULL,  
+       P_URL    VARCHAR(512) NOT NULL,
+       CONSTRAINT PK_WUR_PAGINA PRIMARY KEY (P_ID)
+  ) TABLESPACE TS_WUR;
+
+  CREATE TABLE WUR_CAPTURA (
+       C_ID  NUMBER(8) NOT NULL,       
+       C_CAPTURA   NUMBER (16) NOT NULL,
+       C_FECHA DATE,
+       C_CDX BLOB default empty_blob(),
+       CONSTRAINT PK_WUR_CAPTURA PRIMARY KEY (C_ID, C_CAPTURA),
+       CONSTRAINT FK_WUR_CAP_PAG FOREIGN KEY (C_ID) REFERENCES WUR_PAGINA
+  ) TABLESPACE TS_WUR;   
+
+  CREATE TABLE WUR_SEGMENTO (
+       S_ID  NUMBER(8) NOT NULL,
+       S_CAPTURA   NUMBER (16) NOT NULL,
+       S_SEGID     NUMBER (8) NOT NULL,
+       S_SEGMENTO BLOB default empty_blob(),
+       CONSTRAINT PK_WUR_SEGMENTO PRIMARY KEY (S_ID, S_CAPTURA, S_SEGID),
+       CONSTRAINT FK_WUR_SEG_PAG FOREIGN KEY (S_ID) REFERENCES WUR_PAGINA,       
+       CONSTRAINT FK_WUR_SEG_CAP FOREIGN KEY (S_ID, S_CAPTURA) REFERENCES WUR_CAPTURA
+  ) TABLESPACE TS_WUR;
+
+
+  ALTER SESSION SET EVENTS= 'immediate trace name flush_cache';
+  EXIT;
+
+

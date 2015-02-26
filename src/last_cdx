@@ -1,0 +1,15 @@
+#! /bin/bash
+
+# Autores:
+
+# Samantha Campisi (samanthac07@gmail.com)
+# Juan A. Escalante (jaescalante02@gmail.com)
+
+# Argumentos
+#Necesita el cdx viejo $1
+
+  TAM=`grep -n "CDX a b a m s k r M V g u"  $1.cdx | tail -1 | awk -F: '{print $1}'`
+  tail -n \+$TAM $1.cdx > temp$1.cdx
+  cp temp$1.cdx $1.cdx
+  rm temp$1.cdx
+

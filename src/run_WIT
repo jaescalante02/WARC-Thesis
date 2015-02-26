@@ -1,0 +1,48 @@
+#! /bin/bash
+# Autores:
+
+# Samantha Campisi (samanthac07@gmail.com)
+# Juan A. Escalante (jaescalante02@gmail.com)
+
+# $1 = filename
+# $2 = last capture number
+# $3 = max length of segment
+# $4 = http
+# $5 = 
+# 
+
+     echo "Welcome 1 times"
+     sqlplus / as sysdba @createwit.sql
+     cp ../Cap1/$1.* .
+     java java_timer ./WIT $1 $3 >> time_process_WIT.txt
+     wc -c tmp_WIT/* >> space_WIT.txt
+     nsegment=`ls tmp_WIT/ | wc -l`
+     maxseg=`ls -v tmp_WIT/*.txt | tail -1 | awk -F. '{print $1}' | awk -F/ '{print $2}'` 
+     ./insert_script -f 1 $nsegment $4 WIT $1 $[$maxseg+1] tmp_insert.sql
+     cp -r tmp_WIT/ ../Warcs/
+     cp $1.cdx ../Warcs/tmp_WIT/
+     java java_timer sqlplus / as sysdba @tmp_insert.sql >> time_insert_WIT.txt
+     #sqlplus / as sysdba @createwit.sql
+     rm -r tmp_WIT/ ../Warcs/tmp_WIT/
+     rm $1.* tmp_insert.sql
+
+  
+  for (( capture=2; capture<=$2; capture++ ))
+  do
+     echo "Welcome $capture times"
+     sqlplus / as sysdba @createwit.sql
+     cp ../Cap$capture/new/$1.* .
+     java java_timer ./WIT $1 $3 >> time_process_WIT.txt
+     wc -c tmp_WIT/* >> space_WIT.txt
+     nsegment=`ls tmp_WIT/ | wc -l`
+     maxseg=`ls -v tmp_WIT/*.txt | tail -1 | awk -F. '{print $1}' | awk -F/ '{print $2}'` 
+     ./insert_script -f $capture $nsegment $4 WIT $1  $[$maxseg+1] tmp_insert.sql
+     cp -r tmp_WIT/ ../Warcs/
+     cp $1.cdx ../Warcs/tmp_WIT/
+     java java_timer sqlplus / as sysdba @tmp_insert.sql >> time_insert_WIT.txt
+     #sqlplus / as sysdba @createwit.sql
+     rm -r tmp_WIT/ ../Warcs/tmp_WIT/
+     rm $1.* tmp_insert.sql
+  done
+
+  sqlplus / as sysdba @createwit.sql

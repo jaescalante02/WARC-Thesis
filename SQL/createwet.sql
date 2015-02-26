@@ -1,0 +1,42 @@
+-- createwet.sql
+--
+-- Archivo de creacion de las tablas necesarias para la tecnica WET.
+--
+-- Autores:
+--
+-- Samantha Campisi (samanthac07@gmail.com)
+-- Juan A. Escalante (jaescalante02@gmail.com)
+
+  DROP TABLE WET_SEGMENTO;
+  DROP TABLE WET_CAPTURA; 
+  DROP TABLE WET_PAGINA;
+
+  CREATE TABLE WET_PAGINA (
+       P_ID  NUMBER(8) NOT NULL,  
+       P_URL    VARCHAR(512) NOT NULL,
+       CONSTRAINT PK_WET_PAGINA PRIMARY KEY (P_ID)
+  ) TABLESPACE TS_WET;
+
+  CREATE TABLE WET_CAPTURA (
+       C_ID  NUMBER(8) NOT NULL,       
+       C_CAPTURA   NUMBER (16) NOT NULL,
+       C_FECHA DATE,
+       C_CDX BLOB default empty_blob(),
+       CONSTRAINT PK_WET_CAPTURA PRIMARY KEY (C_ID, C_CAPTURA),
+       CONSTRAINT FK_WET_CAP_PAG FOREIGN KEY (C_ID) REFERENCES WET_PAGINA
+  ) TABLESPACE TS_WET;   
+
+  CREATE TABLE WET_SEGMENTO (
+       S_ID  NUMBER(8) NOT NULL,
+       S_CAPTURA   NUMBER (16) NOT NULL,
+       S_SEGID     NUMBER (8) NOT NULL,
+       S_SEGMENTO BLOB default empty_blob(),
+       CONSTRAINT PK_WET_SEGMENTO PRIMARY KEY (S_ID, S_CAPTURA, S_SEGID),
+       CONSTRAINT FK_WET_SEG_PAG FOREIGN KEY (S_ID) REFERENCES WET_PAGINA,       
+       CONSTRAINT FK_WET_SEG_CAP FOREIGN KEY (S_ID, S_CAPTURA) REFERENCES WET_CAPTURA
+  ) TABLESPACE TS_WET;
+
+  ALTER SESSION SET EVENTS= 'immediate trace name flush_cache';
+  EXIT;
+  
+  

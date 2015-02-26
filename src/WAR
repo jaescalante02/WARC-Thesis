@@ -1,0 +1,27 @@
+#! /bin/bash
+
+# Autores:
+
+# Samantha Campisi (samanthac07@gmail.com)
+# Juan A. Escalante (jaescalante02@gmail.com)
+
+#Argumentos:
+#$1 nombre del warc (ej x en x.warc)
+#$2 Tamano de segmento
+
+#Calculo el tamano total del archivo
+TAM_TOTAL=`wc -c $1.warc |  awk '{print $1}'`
+
+#Calculo offsets de WARC headers
+grep -b  WARC/1.0 $1.warc | awk -F: '{print $1}' > offset.txt
+
+./cut $1.warc offset.txt $2 $TAM_TOTAL 0
+
+mkdir tmp_warc
+bash cut_script
+
+
+mv tmp_warc/ tmp_WAR
+rm cut_script
+rm offset.txt
+

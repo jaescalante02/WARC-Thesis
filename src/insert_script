@@ -1,0 +1,29 @@
+# Autores:
+
+# Samantha Campisi (samanthac07@gmail.com)
+# Juan A. Escalante (jaescalante02@gmail.com)
+
+# Argumentos
+# $1 = -f =  first
+# $2 = n captura
+# $3 = n segmentos
+# $4 = http
+# $5 = tecnica
+# $6 = filename
+# $7 = lastsegment
+# $8 = output
+
+  if [ $1 = "-f" ]; then
+    echo "exec page_insert_$5(1, '$4', $2, $7, 'tmp_$5/$6.cdx', 'tmp_$5/$[$7-1].txt');" >> $8
+  else
+    echo "exec capture_insert_$5(1, '$4', $2, $7, 'tmp_$5/$6.cdx', 'tmp_$5/$[$7-1].txt');" >> $8
+  fi
+  
+  limit=$[$7-$3]
+
+  for (( capture=$7-1; capture>limit; capture-- ))
+  do  
+    echo "exec segment_insert_$5(1, '$4', $2, $capture, 'tmp_$5/$6.cdx', 'tmp_$5/$[$capture-1].txt');" >> $8  
+  done
+  
+  echo "exit" >> $8  

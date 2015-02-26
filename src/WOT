@@ -1,0 +1,37 @@
+#! /bin/bash
+# Autores:
+
+# Samantha Campisi (samanthac07@gmail.com)
+# Juan A. Escalante (jaescalante02@gmail.com)
+
+#Necesita el cdx viejo $1
+#Necesita el cdx nuevo $2
+
+#Argumentos:
+#$1 nombre del warc mas viejo (ej x en x.warc)
+#$2 nombre del warc mas nuevo (ej x en x.warc)
+#$3 Tamano de segmento
+
+grep -b  WARC/1.0 $2.warc | awk -F: '{print $1}' > offset.txt
+awk '{print $1, $6 }' $1.cdx > ocdx.txt
+awk '{print $1, $6 }' $2.cdx > ncdx.txt
+./change ncdx.txt ocdx.txt offset.txt
+
+CHNG=`cat first_change.txt`
+
+#Calculo el tamano total del archivo
+TAM_TOTAL=`wc -c $2.warc |  awk '{print $1}'`
+
+./cut $2.warc offset.txt $3 $TAM_TOTAL $CHNG
+
+mkdir tmp_warc
+time bash cut_script
+
+
+mv tmp_warc/ tmp_WOT
+rm cut_script
+rm offset.txt
+
+rm first_change.txt
+rm ocdx.txt
+rm ncdx.txt

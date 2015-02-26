@@ -1,0 +1,41 @@
+-- createwit.sql
+--
+-- Archivo de creacion de las tablas necesarias para la tecnica WIT.
+--
+-- Autores:
+--
+-- Samantha Campisi (samanthac07@gmail.com)
+-- Juan A. Escalante (jaescalante02@gmail.com)
+
+  DROP TABLE WIT_SEGMENTO;
+  DROP TABLE WIT_CAPTURA;
+  DROP TABLE WIT_PAGINA;
+
+  CREATE TABLE WIT_PAGINA (
+       P_ID  NUMBER(8) NOT NULL,  
+       P_URL    VARCHAR(512) NOT NULL,
+       CONSTRAINT PK_WIT_PAGINA PRIMARY KEY (P_ID)
+  ) TABLESPACE TS_WIT;
+
+  CREATE TABLE WIT_CAPTURA (
+       C_ID  NUMBER(8) NOT NULL,       
+       C_CAPTURA   NUMBER (16) NOT NULL,
+       C_FECHA DATE,
+       C_CDX BLOB default empty_blob(),
+       CONSTRAINT PK_WIT_CAPTURA PRIMARY KEY (C_ID, C_CAPTURA),
+       CONSTRAINT FK_WIT_CAP_PAG FOREIGN KEY (C_ID) REFERENCES WIT_PAGINA
+  ) TABLESPACE TS_WIT;   
+
+  CREATE TABLE WIT_SEGMENTO (
+       S_ID  NUMBER(8) NOT NULL,
+       S_CAPTURA   NUMBER (16) NOT NULL,
+       S_SEGID     NUMBER (8) NOT NULL,
+       S_SEGMENTO BLOB default empty_blob(),
+       CONSTRAINT PK_WIT_SEGMENTO PRIMARY KEY (S_ID, S_CAPTURA, S_SEGID),
+       CONSTRAINT FK_WIT_SEG_PAG FOREIGN KEY (S_ID) REFERENCES WIT_PAGINA,       
+       CONSTRAINT FK_WIT_SEG_CAP FOREIGN KEY (S_ID, S_CAPTURA) REFERENCES WIT_CAPTURA
+  ) TABLESPACE TS_WIT;
+
+  ALTER SESSION SET EVENTS= 'immediate trace name flush_cache';
+  EXIT;
+

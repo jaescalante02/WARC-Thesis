@@ -1,0 +1,57 @@
+#! /bin/bash
+# Autores:
+
+# Samantha Campisi (samanthac07@gmail.com)
+# Juan A. Escalante (jaescalante02@gmail.com)
+
+# $1 = filename
+# $2 = last capture number
+# $3 = max length of segment
+# $4 = http
+# $5 = 
+# 
+
+     echo "Welcome 1 times"
+     sqlplus / as sysdba @createwot.sql
+     cp ../Cap1/$1.* .
+     java java_timer ./WIT $1 $3 >> time_process_WOT.txt
+     wc -c tmp_WIT/* >> space_WOT.txt
+     nsegment=`ls tmp_WIT/ | wc -l`
+     mv tmp_WIT/ tmp_WOT/
+     maxseg=`ls -v tmp_WOT/*.txt | tail -1 | awk -F. '{print $1}' | awk -F/ '{print $2}'`
+     ./insert_script -f 1 $nsegment $4 WOT $1 $[$maxseg+1] tmp_insert.sql
+     cp -r tmp_WOT/ ../Warcs/
+     cp $1.cdx ../Warcs/tmp_WOT/
+     java java_timer sqlplus / as sysdba @tmp_insert.sql >> time_insert_WOT.txt
+     rm -r tmp_WOT/ ../Warcs/tmp_WOT/
+     cp $1.warc tmp_old.warc
+     cp $1.cdx tmp_old.cdx
+     rm $1.* tmp_insert.sql
+
+  
+  for (( capture=2; capture<=$2; capture++ ))
+  do
+     echo "Welcome $capture times"
+     sqlplus / as sysdba @createwot.sql
+     cp ../Cap$capture/new/$1.* .
+     cp $1.cdx tmp_medium.cdx 
+     #./last_cdx $1
+     java java_timer ./WOT tmp_old $1 $3 >> time_process_WOT.txt
+     wc -c tmp_WOT/* >> space_WOT.txt
+     nsegment=`ls tmp_WOT/ | wc -l`
+     maxseg=`ls -v tmp_WOT/*.txt | tail -1 | awk -F. '{print $1}' | awk -F/ '{print $2}'` 
+     ./insert_script -f $capture $[nsegment] $4 WOT $1  $[$maxseg+1] tmp_insert.sql
+     cp -r tmp_WOT/ ../Warcs/
+     #cp -r tmp_WOT/ PruebaWOT/
+     cp $1.cdx ../Warcs/tmp_WOT/
+     java java_timer sqlplus / as sysdba @tmp_insert.sql >> time_insert_WOT.txt
+     rm -r tmp_WOT/ ../Warcs/tmp_WOT/
+     cp $1.warc tmp_old.warc
+     mv tmp_medium.cdx tmp_old.cdx
+     rm $1.* tmp_insert.sql
+     
+  done
+
+  sqlplus / as sysdba @createwot.sql
+  rm -f tmp_old.* tmp_medium.cdx
+

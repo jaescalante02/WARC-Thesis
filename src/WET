@@ -1,0 +1,55 @@
+#! /bin/bash
+
+# Autores:
+
+# Samantha Campisi (samanthac07@gmail.com)
+# Juan A. Escalante (jaescalante02@gmail.com)
+
+#Necesita el cdx viejo $1
+#Necesita el cdx nuevo $2
+
+#Argumentos:
+#$1 nombre del warc mas viejo (ej x en x.warc)
+#$2 nombre del warc mas nuevo (ej x en x.warc)
+#$3 Tamano de segmento
+
+grep -a -b  WARC/1.0 $2.warc | awk -F: '{print $1}' > offset.txt
+awk '{print $1, $6 }' $1.cdx > ocdx.txt
+awk '{print $1, $6, $9}' $2.cdx > ncdx.txt
+./change_hash ocdx.txt ncdx.txt offset.txt $2
+echo "termino change_hash"
+
+mkdir tmp_warc/
+bash cut_cdx
+bash cut_script
+
+echo "terminaron los bash"
+cat `ls -vx tmp_warc/*.txt` > tmp_warc/new.warc
+#cat tmp_warc/*.txt > tmp_warc/new.warc
+rm tmp_warc/*.txt
+rm ncdx.txt ocdx.txt offset.txt 
+rm cut_cdx
+rm cut_script
+
+
+#Calculo el tamano total del archivo
+TAM_TOTAL=`wc -c tmp_warc/new.warc |  awk '{print $1}'`
+
+#Calculo offsets de WARC headers
+grep -a -b  WARC/1.0 tmp_warc/new.warc | awk -F: '{print $1}' > offset.txt
+
+./cut tmp_warc/new.warc offset.txt $3 $TAM_TOTAL 0
+
+
+time bash cut_script
+echo "M" > newoffset.txt
+awk 'NR % 2 == 0' offset.txt >> newoffset.txt
+awk '{print $1, $2, $3, $4, $5, $6, $7, $8 }' tmp_warc/new.cdx > f_newoffset.txt
+awk '{print $10, $11 }' tmp_warc/new.cdx > l_newoffset.txt
+paste f_newoffset.txt newoffset.txt l_newoffset.txt > tmp_warc/$2.cdx
+
+
+mv tmp_warc/ tmp_WET
+rm cut_script tmp_WET/new.cdx
+rm offset.txt f_newoffset.txt newoffset.txt l_newoffset.txt
+
